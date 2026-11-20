@@ -1,0 +1,254 @@
+:root {
+  color-scheme: light dark;
+  --bg: #f6f7f9;
+  --fg: #16181d;
+  --muted: #5a6070;
+  --panel: #ffffff;
+  --border: #d9dde5;
+  --primary: #1f5fd6;
+  --primary-fg: #ffffff;
+  --danger: #b42318;
+  --danger-bg: #fdecea;
+  --warning: #8a5300;
+  --warning-bg: #fff4e0;
+  --info-bg: #e8effc;
+  --success: #146c2e;
+  --focus: #1f5fd6;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #101215;
+    --fg: #eceef2;
+    --muted: #a3a9b6;
+    --panel: #1a1d22;
+    --border: #2d323a;
+    --primary: #6c9cff;
+    --primary-fg: #0b1020;
+    --danger: #ff8a80;
+    --danger-bg: #3a1715;
+    --warning: #ffc266;
+    --warning-bg: #33260f;
+    --info-bg: #17243d;
+    --success: #7fd99a;
+    --focus: #9cbcff;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  line-height: 1.5;
+}
+
+.page {
+  max-width: 34rem;
+  margin: 0 auto;
+  padding: 2.5rem 1rem;
+}
+
+h1 {
+  font-size: 1.75rem;
+  margin: 0 0 0.5rem;
+}
+
+.lead,
+.hint,
+.footer {
+  color: var(--muted);
+}
+
+.panel {
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--panel);
+}
+
+.steps {
+  margin: 0 0 1rem;
+  padding-left: 1.25rem;
+}
+
+.qr {
+  display: flex;
+  justify-content: center;
+  margin: 1rem auto;
+  padding: 0.75rem;
+  width: fit-content;
+  background: #ffffff; /* QR codes need a light background in both themes */
+  border-radius: 8px;
+}
+
+.countdown {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.5rem 0 1rem;
+}
+
+.countdown progress {
+  flex: 1;
+  height: 0.5rem;
+  accent-color: var(--primary);
+}
+
+.countdown-warning {
+  color: var(--warning);
+}
+
+.countdown-warning progress {
+  accent-color: var(--warning);
+}
+
+.status-line {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+}
+
+.dot {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dot-live {
+  background: var(--success);
+}
+
+.dot-offline {
+  background: var(--warning);
+}
+
+.button {
+  min-height: 44px;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  border: 1px solid var(--primary);
+  background: var(--primary);
+  color: var(--primary-fg);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.button.secondary {
+  background: transparent;
+  color: var(--primary);
+  border-color: var(--border);
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.button:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.outcome {
+  padding: 1rem 1.25rem;
+  border-radius: 10px;
+}
+
+.outcome h2,
+.outcome h3 {
+  margin: 0 0 0.25rem;
+  font-size: 1.1rem;
+}
+
+.outcome p {
+  margin: 0 0 1rem;
+}
+
+.outcome-danger {
+  background: var(--danger-bg);
+}
+
+.outcome-danger h2,
+.outcome-danger h3 {
+  color: var(--danger);
+}
+
+.outcome-warning {
+  background: var(--warning-bg);
+}
+
+.outcome-warning h3 {
+  color: var(--warning);
+}
+
+.outcome-info {
+  background: var(--info-bg);
+}
+
+.spinner-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.spinner {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 3s;
+  }
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.25rem 1rem;
+}
+
+.facts dt {
+  color: var(--muted);
+}
+
+.facts dd {
+  margin: 0;
+}
+
+.footer {
+  font-size: 0.875rem;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

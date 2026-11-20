@@ -125,8 +125,8 @@ Expo Go cannot load the secure key module. Android emulators do not have the sam
 | `npm run smoke`                                           | Checks the full API flow against the running local services, including expiry and recovery. It takes about 65 seconds. Use `SMOKE_SKIP_EXPIRY=1 npm run smoke` to skip the wait. |
 | `npm run build:web`                                       | Builds the browser app for release.                                                                                                                                              |
 | `npm run test:native-crypto --workspace @capstone/mobile` | Checks the Swift signing format against the API. This does not test an iPhone's Secure Enclave.                                                                                  |
-| `npm run db:ap:check`                                     | Checks that the database submission files match their source files.                                                                                                              |
-| `npm run db:benchmark`                                    | Re-runs the database timing and query-plan measurements.                                                                                                                         |
+| `npm run db:ap:check`                                     | Checks generated schema/query files and confirms the AP timing table links to all 43 three-run query-plan files.                                                                 |
+| `npm run db:benchmark`                                    | Re-runs the database timing and query-plan measurements, writing the AP checkpoint timing table and one plans file per query.                                                    |
 | `npm run db:down`                                         | Stops PostgreSQL. Your database files remain saved.                                                                                                                              |
 
 ## Security in brief
@@ -150,7 +150,7 @@ If you have another trusted phone, use it to revoke the missing phone. If all tr
 - Accounts are created with a development tool; there is no public sign-up or email verification.
 - Running multiple API servers needs shared storage for live messages and rate limits.
 - The server registers public keys but does not yet issue device certificates. See [open design decisions](docs/ARCHITECTURE.md#open-decisions).
-- Database timings were measured on one computer with generated sample data. They are not a promise of production performance. See [the results](dbms/05_query_performance.md).
+- Database timings were measured on one computer with generated sample data. They are not a promise of production performance. See [the results](dbms/05_query_timings.md) and per-query plans in [dbms/plans/](dbms/plans/).
 
 ## Important folders
 

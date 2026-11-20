@@ -1,0 +1,26 @@
+{
+  "description": "TEST-ONLY P-256 key. Signatures are ECDSA/SHA-256, DER (X9.62) encoded, base64url. Phone and API implementations must reproduce `message` byte-for-byte from `fields` and accept `signatureDer`.",
+  "algorithm": "ES256",
+  "publicKeySpkiDer": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEKSczKhjJrSzYuGJHayZKvp1RDpf_QmzAn37Q9CxGqi3zrEzMp3NN7lPqYZ_YNos-CMcJ4hOndKXuuKisz1YWGw",
+  "testOnlyPrivateKeyPkcs8Der": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgf2EhL7lXDClloqSGn2qQYwIRkfLZYbV7N-9S-Z7t9JShRANCAAQpJzMqGMmtLNi4YkdrJkq-nVEOl_9CbMCfftD0LEaqLfOsTMync03uU-phn9g2iz4IxwniE6d0pe64qKzPVhYb",
+  "loginDecision": {
+    "fields": {
+      "audience": "capstone-local",
+      "challengeId": "1e097fd4-5264-46ea-95da-d356efd23bbe",
+      "nonce": "Mqq0TlY1qvnen67zM-Rp5I8rJ1jrneZUPq_I0djTWGM",
+      "keyId": "7d0c4a6e-4535-4c1f-bb04-487280f20f33",
+      "decision": "approved"
+    },
+    "message": "capstone-auth/login-decision/v1\naudience=capstone-local\nchallenge=1e097fd4-5264-46ea-95da-d356efd23bbe\nnonce=Mqq0TlY1qvnen67zM-Rp5I8rJ1jrneZUPq_I0djTWGM\nkey=7d0c4a6e-4535-4c1f-bb04-487280f20f33\ndecision=approved",
+    "signatureDer": "MEQCIFNUgrvlKeEuxpeYbrarS6X_unGqaFwrbi1lbLzPeoZHAiAZ07K4g6u-sDJZd4Whbay--8MF1dKwfqEK40xfdesmug"
+  },
+  "enrollment": {
+    "fields": {
+      "audience": "capstone-local",
+      "enrollmentId": "2544f039-fb6b-4dbb-b422-e687b298ebf3",
+      "nonce": "sI8Pd2dN41v6C91AXvy2DECwwDooYcK6F2qV15OrZao"
+    },
+    "message": "capstone-auth/enroll/v1\naudience=capstone-local\nenrollment=2544f039-fb6b-4dbb-b422-e687b298ebf3\nnonce=sI8Pd2dN41v6C91AXvy2DECwwDooYcK6F2qV15OrZao",
+    "signatureDer": "MEUCIHNw4UZCN4pCTM0untf77CBGxVVg73eo368ORSQ6X3kBAiEA9PH8p1aJdD0cqDRSuht-VPXxr7xyj1Ni3WkVCcOKMYU"
+  }
+}

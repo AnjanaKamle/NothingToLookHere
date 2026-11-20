@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "Capstone Trusted Phone",
+    "slug": "capstone-trusted-phone",
+    "scheme": "capstone-auth",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "bundleIdentifier": "dev.capstone.trustedphone",
+      "supportsTablet": false,
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "Face ID confirms it's you before this phone approves a sign-in with its secure key."
+      }
+    },
+    "android": {
+      "package": "dev.capstone.trustedphone",
+      "allowBackup": false
+    },
+    "plugins": [
+      "expo-secure-store",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "The camera is used only to scan sign-in QR codes shown in your browser.",
+          "recordAudioAndroid": false,
+          "barcodeScannerEnabled": true
+        }
+      ]
+    ]
+  }
+}
