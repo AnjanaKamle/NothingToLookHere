@@ -202,7 +202,7 @@ router.post("/requests/approve", authenticate, requirePhone, requests.approveReq
 - `approval-panel`: "Approve this sign-in?" after scanning a QR.
 - `phone-panel`: the signed-in phone, with the list of active browser sessions.
 
-**`public/app.js`** decides which panel to show. It calls `/api/auth/me` on load; if the URL contains `?approve=<token>`, it shows the approval screen. If nobody is signed in, it checks `navigator.userAgent`: a **phone** gets the sign-in form, and a **laptop/desktop** only gets the QR button, because the whole point is that you never type a password on the computer. It uses `setInterval` to poll the request status every 2 seconds.
+**`public/app.js`** decides which panel to show. It calls `/api/auth/me` on load; if the URL contains `?approve=<token>`, it shows the approval screen. If nobody is signed in, it checks `navigator.userAgent`: a **phone** gets the sign-in form, and a **laptop/desktop** only gets the QR button, because the whole point is that you never type a password on the computer. It uses `setInterval` to poll the request status every 2 seconds, and once the computer is signed in it checks `/api/auth/me` every 3 seconds so a sign-out from the phone shows up without a refresh.
 
 ---
 
@@ -335,7 +335,7 @@ The phone needs to reach your computer's server, so both must be on the **same W
 4. On the **computer**, click **Show sign-in QR**.
 5. Scan the QR with the **phone camera**. It opens the approval page. Tap **Approve sign-in**.
 6. Within 2 seconds the computer shows **"This browser is signed in."**
-7. On the phone, open `http://<your-ip>:3000` again. You'll see the computer under **Active browser sessions**. Tap **Sign out** and the computer is logged out.
+7. On the phone, open `http://<your-ip>:3000` again. You'll see the computer under **Active browser sessions**. Tap **Sign out** and, within about 3 seconds, the computer goes back to the QR screen with "This browser was signed out from your phone."
 
 ### Option B: Everything on one computer
 
@@ -494,6 +494,15 @@ pollTimer = setInterval(() => pollRequest(request.id), 2000);
 ```
 
 A 2-second delay is fine for logging in, and it is just normal HTTP requests you can see in the browser's Network tab.
+
+The same idea handles **remote sign-out**. Once the computer is signed in, it asks "am I still signed in?" every 3 seconds:
+
+```js
+// public/app.js
+signedInTimer = setInterval(checkStillSignedIn, 3000); // calls GET /api/auth/me
+```
+
+When the phone revokes the session, the next check gets a `401 Unauthorized`, and the page switches back to the QR screen. Only a `401` counts as "signed out"; any other error (for example, Wi-Fi dropping for a moment) is ignored and checked again on the next tick.
 
 ### MVC
 

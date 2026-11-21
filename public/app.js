@@ -5,6 +5,7 @@ const approvalToken = params.get("approve");
 const isPhone = /Android|iPhone|iPod|Mobile/i.test(navigator.userAgent);
 let currentMode = "login";
 let pollTimer;
+let signedInTimer;
 
 function show(...ids) {
   for (const id of ["browser-panel", "auth-panel", "approval-panel", "phone-panel"]) $(id).classList.add("hidden");
@@ -18,7 +19,11 @@ async function api(url, options = {}) {
     headers: { "Content-Type": "application/json", ...(options.headers || {}) }
   });
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.error || "Request failed");
+  if (!response.ok) {
+    const error = new Error(data.error || "Request failed");
+    error.status = response.status; // lets callers tell "signed out" (401) apart from network trouble
+    throw error;
+  }
   return data;
 }
 
@@ -108,6 +113,7 @@ async function decide(decision) {
 
 $("create-request").addEventListener("click", async () => {
   try {
+    $("global-message").textContent = "";
     const request = await api("/api/requests", { method: "POST" });
     $("qr").src = request.qr;
     $("qr-area").classList.remove("hidden");
@@ -122,9 +128,7 @@ async function pollRequest(id) {
     const result = await api(`/api/requests/${id}`);
     if (result.status === "APPROVED") {
       clearInterval(pollTimer);
-      $("request-message").textContent = "Approved. This browser is signed in.";
-      $("browser-user").classList.remove("hidden");
-      $("browser-logout").classList.remove("hidden");
+      showSignedInComputer();
     }
     if (["DENIED", "EXPIRED"].includes(result.status)) {
       clearInterval(pollTimer);
@@ -134,6 +138,41 @@ async function pollRequest(id) {
     clearInterval(pollTimer);
     $("request-message").textContent = error.message;
   }
+}
+
+// The computer, once signed in, checks every 3 seconds that its session still exists.
+// When the phone signs it out, the next check gets a 401 and the page goes back to the QR screen.
+function showSignedInComputer() {
+  show("browser-panel");
+  $("title").textContent = "This browser is signed in";
+  $("intro").textContent = "You can now use this browser. Sign out when you are finished.";
+  $("create-request").classList.add("hidden");
+  $("qr-area").classList.add("hidden");
+  $("browser-user").classList.remove("hidden");
+  $("browser-logout").classList.remove("hidden");
+  clearInterval(signedInTimer);
+  signedInTimer = setInterval(checkStillSignedIn, 3000);
+}
+
+async function checkStillSignedIn() {
+  try {
+    await api("/api/auth/me");
+  } catch (error) {
+    if (error.status !== 401) return; // a network hiccup: try again on the next tick
+    clearInterval(signedInTimer);
+    showComputerStart("This browser was signed out from your phone.");
+  }
+}
+
+function showComputerStart(message = "") {
+  $("title").textContent = "Sign in on this computer";
+  $("intro").textContent = "Use your signed-in phone to approve a one-time QR request.";
+  $("create-request").classList.remove("hidden");
+  $("qr-area").classList.add("hidden");
+  $("browser-user").classList.add("hidden");
+  $("browser-logout").classList.add("hidden");
+  $("global-message").textContent = message;
+  show("browser-panel");
 }
 
 async function logout() {
@@ -155,20 +194,10 @@ async function start() {
   try {
     const { user, type } = await api("/api/auth/me");
     if (type === "PHONE") return showPhone(user);
-    if (type === "BROWSER") {
-      show("browser-panel");
-      $("title").textContent = "This browser is signed in";
-      $("intro").textContent = "You can now use this browser. Sign out when you are finished.";
-      $("create-request").classList.add("hidden");
-      $("browser-user").classList.remove("hidden");
-      $("browser-logout").classList.remove("hidden");
-      return;
-    }
+    if (type === "BROWSER") return showSignedInComputer();
   } catch { /* Not signed in yet. */ }
   if (isPhone) return showAuth();
-  $("title").textContent = "Sign in on this computer";
-  $("intro").textContent = "Use your signed-in phone to approve a one-time QR request.";
-  show("browser-panel");
+  showComputerStart();
 }
 
 start();
