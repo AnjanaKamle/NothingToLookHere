@@ -1,6 +1,8 @@
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
 const approvalToken = params.get("approve");
+// Phones sign in with a password; laptops and desktops only ever see the QR code.
+const isPhone = /Android|iPhone|iPod|Mobile/i.test(navigator.userAgent);
 let currentMode = "login";
 let pollTimer;
 
@@ -76,10 +78,6 @@ function setAuthMode(mode) {
   $("auth-submit").textContent = mode === "register" ? "Create account" : "Sign in";
   $("password").autocomplete = mode === "register" ? "new-password" : "current-password";
 }
-$("phone-signin").addEventListener("click", () => {
-  setAuthMode("login");
-  showAuth();
-});
 
 $("auth-form").addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -166,7 +164,8 @@ async function start() {
       $("browser-logout").classList.remove("hidden");
       return;
     }
-  } catch { /* The shared computer is usually not signed in yet. */ }
+  } catch { /* Not signed in yet. */ }
+  if (isPhone) return showAuth();
   $("title").textContent = "Sign in on this computer";
   $("intro").textContent = "Use your signed-in phone to approve a one-time QR request.";
   show("browser-panel");

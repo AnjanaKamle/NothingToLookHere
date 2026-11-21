@@ -202,7 +202,7 @@ router.post("/requests/approve", authenticate, requirePhone, requests.approveReq
 - `approval-panel`: "Approve this sign-in?" after scanning a QR.
 - `phone-panel`: the signed-in phone, with the list of active browser sessions.
 
-**`public/app.js`** decides which panel to show. It calls `/api/auth/me` on load; if the URL contains `?approve=<token>`, it shows the approval screen. It uses `setInterval` to poll the request status every 2 seconds.
+**`public/app.js`** decides which panel to show. It calls `/api/auth/me` on load; if the URL contains `?approve=<token>`, it shows the approval screen. If nobody is signed in, it checks `navigator.userAgent`: a **phone** gets the sign-in form, and a **laptop/desktop** only gets the QR button, because the whole point is that you never type a password on the computer. It uses `setInterval` to poll the request status every 2 seconds.
 
 ---
 
@@ -331,7 +331,7 @@ The phone needs to reach your computer's server, so both must be on the **same W
    - Windows: `ipconfig` and look for "IPv4 Address"
    - Linux: `hostname -I`
 2. On the **computer**, open `http://<your-ip>:3000` (for example `http://192.168.1.20:3000`). Use the IP, not `localhost`, because the QR code link is built from this address.
-3. On the **phone**, open the same `http://<your-ip>:3000`, tap **I'm using my phone**, and **Create account**.
+3. On the **phone**, open the same `http://<your-ip>:3000`, and tap **Create account** (phones see the sign-in form straight away).
 4. On the **computer**, click **Show sign-in QR**.
 5. Scan the QR with the **phone camera**. It opens the approval page. Tap **Approve sign-in**.
 6. Within 2 seconds the computer shows **"This browser is signed in."**
@@ -341,7 +341,9 @@ The phone needs to reach your computer's server, so both must be on the **same W
 
 Use two different browsers (for example Chrome as the "phone" and Firefox as the "computer"), or a normal window and a private window, because cookies are separate in each.
 
-1. In browser 1 ("phone"), open `http://localhost:3000`, click **I'm using my phone**, and create an account.
+The app only shows the sign-in form to phones, so make browser 1 pretend to be a phone: in Chrome, open DevTools (`F12` or `Cmd+Option+I`), click the **Toggle device toolbar** icon (or `Ctrl+Shift+M` / `Cmd+Shift+M`), choose a phone such as "iPhone 12 Pro", and reload.
+
+1. In browser 1 ("phone", in device mode), open `http://localhost:3000` and create an account.
 2. In browser 2 ("computer"), open `http://localhost:3000` and click **Show sign-in QR**.
 3. Get the link that is inside the QR code. Either scan it with any QR reader app and copy the link, or run `npm run db:studio`, open the `login_requests` table and copy the newest `token`. The link is `http://localhost:3000/?approve=<token>`.
 4. Paste that link into **browser 1** and approve. Within 2 seconds browser 2 becomes signed in.
