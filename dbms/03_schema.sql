@@ -28,8 +28,8 @@ CREATE TABLE login_requests (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   expires_at TIMESTAMPTZ NOT NULL,
   approved_at TIMESTAMPTZ,
-  approved_by_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
-  approved_by_device_id UUID REFERENCES devices(id) ON DELETE SET NULL,
+  approved_by_user_id UUID REFERENCES users(id) ON DELETE RESTRICT,
+  approved_by_device_id UUID REFERENCES devices(id) ON DELETE RESTRICT,
   CONSTRAINT login_requests_expiry_after_creation CHECK (expires_at > created_at),
   CONSTRAINT login_requests_approval_fields CHECK (
     (status <> 'APPROVED') OR (approved_at IS NOT NULL AND approved_by_user_id IS NOT NULL AND approved_by_device_id IS NOT NULL)

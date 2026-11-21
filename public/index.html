@@ -3,13 +3,13 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>sem3 Capstone | Phone sign-in</title>
+    <title>QR Handoff | Sign in</title>
     <link rel="stylesheet" href="/style.css" />
     <script type="module" src="/app.js"></script>
   </head>
   <body>
     <main class="card">
-      <p class="eyebrow">sem3 capstone</p>
+      <p class="eyebrow">QR Handoff</p>
       <h1 id="title">Sign in on this computer</h1>
       <p id="intro" class="muted">Use your signed-in phone to approve a one-time QR request.</p>
 
@@ -30,8 +30,18 @@
         </div>
         <form id="auth-form">
           <label>Phone number<input id="phone" name="phone" autocomplete="tel" required /></label>
-          <label id="password-label">Password<input id="password" name="password" type="password" minlength="8" autocomplete="current-password" required /></label>
-          <label id="device-label" class="hidden">Phone name<input id="device-name" name="deviceName" value="My phone" maxlength="80" /></label>
+          <label id="password-label"
+            >Password<input
+              id="password"
+              name="password"
+              type="password"
+              minlength="8"
+              autocomplete="current-password"
+              required
+          /></label>
+          <label id="device-label" class="hidden"
+            >Phone name<input id="device-name" name="deviceName" value="My phone" maxlength="80"
+          /></label>
           <button id="auth-submit" class="primary" type="submit">Sign in</button>
         </form>
         <p id="auth-message" class="message" role="status"></p>

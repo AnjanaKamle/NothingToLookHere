@@ -8,7 +8,8 @@ let pollTimer;
 let signedInTimer;
 
 function show(...ids) {
-  for (const id of ["browser-panel", "auth-panel", "approval-panel", "phone-panel"]) $(id).classList.add("hidden");
+  for (const id of ["browser-panel", "auth-panel", "approval-panel", "phone-panel"])
+    $(id).classList.add("hidden");
   for (const id of ids) $(id).classList.remove("hidden");
 }
 
@@ -50,7 +51,8 @@ async function refreshSessions() {
 
 async function showPhone(user) {
   $("title").textContent = "Your phone is signed in";
-  $("intro").textContent = "Scan a computer's QR code to approve its sign-in, or manage active browsers here.";
+  $("intro").textContent =
+    "Scan a computer's QR code to approve its sign-in, or manage active browsers here.";
   $("phone-user").textContent = `Signed in as ${user.phone}`;
   if (approvalToken) {
     show("approval-panel");
@@ -60,7 +62,9 @@ async function showPhone(user) {
     try {
       const preview = await api(`/api/requests/preview/${encodeURIComponent(approvalToken)}`);
       $("browser-name").textContent = preview.browserName;
-    } catch (error) { $("approval-message").textContent = error.message; }
+    } catch (error) {
+      $("approval-message").textContent = error.message;
+    }
   } else {
     show("phone-panel");
     await refreshSessions();
@@ -69,7 +73,9 @@ async function showPhone(user) {
 
 function showAuth() {
   $("title").textContent = approvalToken ? "Sign in to approve" : "Sign in on your phone";
-  $("intro").textContent = approvalToken ? "Sign in with the account that should approve this browser." : "Use your phone number and password.";
+  $("intro").textContent = approvalToken
+    ? "Sign in with the account that should approve this browser."
+    : "Use your phone number and password.";
   show("auth-panel");
 }
 
@@ -97,18 +103,26 @@ $("auth-form").addEventListener("submit", async (event) => {
       })
     });
     await showPhone(data.user);
-  } catch (error) { $("auth-message").textContent = error.message; }
+  } catch (error) {
+    $("auth-message").textContent = error.message;
+  }
 });
 
 $("approve").addEventListener("click", () => decide("approve"));
 $("deny").addEventListener("click", () => decide("deny"));
 async function decide(decision) {
   try {
-    await api("/api/requests/approve", { method: "POST", body: JSON.stringify({ token: approvalToken, decision }) });
-    $("approval-message").textContent = decision === "approve" ? "Approved. Return to the computer." : "Request denied.";
+    await api("/api/requests/approve", {
+      method: "POST",
+      body: JSON.stringify({ token: approvalToken, decision })
+    });
+    $("approval-message").textContent =
+      decision === "approve" ? "Approved. Return to the computer." : "Request denied.";
     $("approve").disabled = true;
     $("deny").disabled = true;
-  } catch (error) { $("approval-message").textContent = error.message; }
+  } catch (error) {
+    $("approval-message").textContent = error.message;
+  }
 }
 
 $("create-request").addEventListener("click", async () => {
@@ -117,10 +131,13 @@ $("create-request").addEventListener("click", async () => {
     const request = await api("/api/requests", { method: "POST" });
     $("qr").src = request.qr;
     $("qr-area").classList.remove("hidden");
-    $("request-message").textContent = "Scan this code with your phone camera. It expires in two minutes.";
+    $("request-message").textContent =
+      "Scan this code with your phone camera. It expires in two minutes.";
     clearInterval(pollTimer);
     pollTimer = setInterval(() => pollRequest(request.id), 2000);
-  } catch (error) { $("global-message").textContent = error.message; }
+  } catch (error) {
+    $("global-message").textContent = error.message;
+  }
 });
 
 async function pollRequest(id) {
@@ -132,7 +149,10 @@ async function pollRequest(id) {
     }
     if (["DENIED", "EXPIRED"].includes(result.status)) {
       clearInterval(pollTimer);
-      $("request-message").textContent = result.status === "DENIED" ? "The request was denied." : "The QR request expired. Create another one.";
+      $("request-message").textContent =
+        result.status === "DENIED"
+          ? "The request was denied."
+          : "The QR request expired. Create another one.";
     }
   } catch (error) {
     clearInterval(pollTimer);
@@ -188,14 +208,18 @@ async function start() {
       const { user, type } = await api("/api/auth/me");
       if (type === "PHONE") await showPhone(user);
       else showAuth();
-    } catch { showAuth(); }
+    } catch {
+      showAuth();
+    }
     return;
   }
   try {
     const { user, type } = await api("/api/auth/me");
     if (type === "PHONE") return showPhone(user);
     if (type === "BROWSER") return showSignedInComputer();
-  } catch { /* Not signed in yet. */ }
+  } catch {
+    /* Not signed in yet. */
+  }
   if (isPhone) return showAuth();
   showComputerStart();
 }

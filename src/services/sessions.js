@@ -10,12 +10,22 @@ export function sessionExpiry() {
 
 // The JWT only names a session row; authenticate() checks that row is still active.
 export function makeToken(session) {
-  return jwt.sign({ sub: session.userId, sid: session.id, type: session.type }, process.env.JWT_SECRET, { expiresIn: `${SESSION_DAYS}d` });
+  return jwt.sign(
+    { sub: session.userId, sid: session.id, type: session.type },
+    process.env.JWT_SECRET,
+    { expiresIn: `${SESSION_DAYS}d` }
+  );
 }
 
 export async function createPhoneSession(userId, device) {
   const session = await prisma.session.create({
-    data: { userId, deviceId: device.id, type: "PHONE", name: device.name, expiresAt: sessionExpiry() }
+    data: {
+      userId,
+      deviceId: device.id,
+      type: "PHONE",
+      name: device.name,
+      expiresAt: sessionExpiry()
+    }
   });
   return makeToken(session);
 }

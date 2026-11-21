@@ -13,12 +13,17 @@ export async function authenticate(req, res, next) {
         userId: payload.sub,
         revokedAt: null,
         expiresAt: { gt: new Date() },
-        ...(payload.type === "PHONE" ? { device: { revokedAt: null } } : {})
+        device: { revokedAt: null } // relation filter: the phone this session belongs to must still be active
       },
       include: { device: true }
     });
     if (!session) return res.status(401).json({ error: "Session expired or revoked" });
-    req.auth = { userId: session.userId, sessionId: session.id, type: session.type, device: session.device };
+    req.auth = {
+      userId: session.userId,
+      sessionId: session.id,
+      type: session.type,
+      device: session.device
+    };
     next();
   } catch {
     return res.status(401).json({ error: "Sign in again" });
@@ -26,6 +31,7 @@ export async function authenticate(req, res, next) {
 }
 
 export function requirePhone(req, res, next) {
-  if (req.auth?.type !== "PHONE") return res.status(403).json({ error: "Approve this request from a signed-in phone" });
+  if (req.auth?.type !== "PHONE")
+    return res.status(403).json({ error: "Approve this request from a signed-in phone" });
   next();
 }

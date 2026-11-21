@@ -179,7 +179,7 @@ router.post("/requests/approve", authenticate, requirePhone, requests.approveReq
 - `logout`: marks the current session as revoked and clears the cookie.
 
 **`src/controllers/loginRequestController.js`**: The heart of the project:
-- `createRequest`: the computer asks for a QR code. Saves a `login_requests` row with a random `token` (goes into the QR) and a `browserSecret` (goes into this browser's cookie).
+- `createRequest`: the computer asks for a QR code. Saves a `login_requests` row; Prisma fills in a random `token` (goes into the QR) and a `browserSecret` (goes into this browser's cookie) using `@default(uuid())` from the schema.
 - `requestStatus`: the computer polls this. If the phone approved, it hands the computer its `session` cookie.
 - `previewRequest`: the phone asks "which browser is this?" before approving.
 - `approveRequest`: the phone approves or denies. Uses the "only if still `PENDING`" update so a QR can only be used once.
@@ -302,7 +302,7 @@ npm run dev
 You should see:
 
 ```text
-sem3 Capstone is running at http://localhost:3000
+QR Handoff is running at http://localhost:3000
 ```
 
 `npm run dev` uses `node --watch`, so the server restarts automatically when you save a file.
@@ -480,7 +480,7 @@ await prisma.user.create({
 ### Relation filtering
 
 ```js
-// only accept a PHONE session if its device has not been revoked
+// only accept a session whose phone (device) has not been revoked
 where: { ..., device: { revokedAt: null } }
 ```
 
@@ -521,7 +521,7 @@ Each controller wraps its work in `try { ... } catch (error) { next(error); }`. 
 
 | Course module | Where to see it |
 |---|---|
-| **Node.js internals**: event loop, non-blocking I/O, `process`, `path`, ES Modules | `src/server.js` (`process.env`, `process.on("SIGINT")`), `src/app.js` (`path`, `import.meta.url`), every `await` |
+| **Node.js internals**: event loop, non-blocking I/O, `process`, `path`, ES Modules | `src/server.js` (`process.env`, `process.on("SIGINT")`), `src/app.js` (`path`, `import.meta.dirname`), every `await` |
 | **EventEmitter / Observer pattern** | `src/events.js`, emitted in `approveRequest` |
 | **HTTP**: methods, status codes, headers, request/response | `src/routes/api.js`, every `res.status(...)`, `req.get("user-agent")` |
 | **Express**: routing, route parameters, request/response, static files | `src/routes/api.js` (`/requests/:id`), `express.static` in `src/app.js` |

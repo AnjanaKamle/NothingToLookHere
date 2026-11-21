@@ -1,9 +1,2 @@
 node_modules
-dist
-build
-coverage
-.expo
-apps/mobile/android
-apps/mobile/ios
 package-lock.json
-dbms/05_query_performance.md

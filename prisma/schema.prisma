@@ -29,7 +29,7 @@ model User {
   createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
   devices      Device[]
   sessions     Session[]
-  requests     LoginRequest[] @relation("RequestApprover")
+  approvedRequests LoginRequest[]
 
   @@map("users")
 }
@@ -42,7 +42,7 @@ model Device {
   revokedAt  DateTime?     @map("revoked_at") @db.Timestamptz(6)
   user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   sessions   Session[]
-  approvals  LoginRequest[] @relation("DeviceApprover")
+  approvedRequests LoginRequest[]
 
   @@index([userId, revokedAt], map: "devices_user_active_idx")
   @@map("devices")
@@ -50,8 +50,8 @@ model Device {
 
 model LoginRequest {
   id               String             @id @default(uuid()) @db.Uuid
-  token            String             @unique @db.VarChar(64)
-  browserSecret    String             @map("browser_secret") @db.VarChar(64)
+  token            String             @unique @default(uuid()) @db.VarChar(64)
+  browserSecret    String             @default(uuid()) @map("browser_secret") @db.VarChar(64)
   browserName      String             @map("browser_name") @db.VarChar(120)
   status           LoginRequestStatus @default(PENDING)
   createdAt        DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
@@ -59,8 +59,8 @@ model LoginRequest {
   approvedAt       DateTime?          @map("approved_at") @db.Timestamptz(6)
   approvedByUserId String?            @map("approved_by_user_id") @db.Uuid
   approvedByDeviceId String?          @map("approved_by_device_id") @db.Uuid
-  approvedByUser   User?              @relation("RequestApprover", fields: [approvedByUserId], references: [id], onDelete: Restrict)
-  approvedByDevice Device?            @relation("DeviceApprover", fields: [approvedByDeviceId], references: [id], onDelete: Restrict)
+  approvedByUser   User?              @relation(fields: [approvedByUserId], references: [id], onDelete: Restrict)
+  approvedByDevice Device?            @relation(fields: [approvedByDeviceId], references: [id], onDelete: Restrict)
   session          Session?
 
   @@index([status, expiresAt], map: "login_requests_status_expiry_idx")

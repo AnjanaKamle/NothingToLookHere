@@ -1,0 +1,32 @@
+{
+  "team_number": "T0111",
+  "group_lead": {
+    "name": "Aranav Chhabra",
+    "enrollment_no": "2501010676",
+    "github": "Aranavchhabra"
+  },
+  "members": [
+    {
+      "name": "Parushya Data",
+      "enrollment_no": "2501010678",
+      "github": "parushyadata"
+    },
+    {
+      "name": "Anjana Kamle",
+      "enrollment_no": "2501010059",
+      "github": "AnjanaKamle"
+    },
+    {
+      "name": "Sriharsha Mallavarapu",
+      "enrollment_no": "2501010456",
+      "github": "user7217"
+    },
+    {
+      "name": "Aranav Chhabra",
+      "enrollment_no": "250101676",
+      "github": "Aranavchhabra"
+    }
+  ],
+  "postgres_version": "18.6",
+  "laptop_used_for_benchmarks": "MacBook Pro"
+}
