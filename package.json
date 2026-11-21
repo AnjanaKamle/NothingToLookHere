@@ -1,39 +1,30 @@
 {
   "name": "sem3-capstone",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
-  "description": "Certificate-backed QR handoff authentication: sign in to a browser by approving with a trusted phone.",
-  "workspaces": [
-    "apps/*",
-    "packages/*",
-    "db"
-  ],
-  "engines": {
-    "node": ">=22.12.0",
-    "npm": ">=10"
-  },
+  "type": "module",
   "scripts": {
-    "db:up": "docker compose up -d postgres",
-    "db:down": "docker compose down",
-    "db:logs": "docker compose logs -f postgres",
-    "db:migrate": "npm run migrate --workspace @capstone/db",
-    "db:migrate:status": "npm run migrate:status --workspace @capstone/db",
-    "db:psql": "docker compose exec postgres psql -U capstone -d capstone",
-    "db:ap:build": "npm run ap:build --workspace @capstone/db",
-    "db:ap:check": "npm run ap:check --workspace @capstone/db",
-    "db:ap:diagram": "npm run ap:diagram --workspace @capstone/db",
-    "db:benchmark": "npm run benchmark --workspace @capstone/db",
-    "dev:api": "npm run dev --workspace @capstone/api",
-    "dev:web": "npm run dev --workspace @capstone/web",
-    "dev:mobile": "npm run start --workspace @capstone/mobile",
-    "dev:create-user": "npm run create-dev-user --workspace @capstone/api --",
-    "build:web": "npm run build --workspace @capstone/web",
-    "test": "npm run test --workspaces --if-present",
-    "smoke": "npm run smoke --workspace @capstone/api",
-    "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    "db:seed": "node prisma/seed.js",
+    "db:generate": "prisma generate"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "7.10.1",
+    "@prisma/client": "7.10.1",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "8.23.1",
+    "qrcode": "^1.5.4"
   },
   "devDependencies": {
-    "prettier": "^3.9.10"
+    "prisma": "7.10.1"
+  },
+  "overrides": {
+    "effect": ">=3.22.1 <4"
   }
 }

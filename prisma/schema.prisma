@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client-js"
+  engineType = "client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum LoginRequestStatus {
+  PENDING
+  APPROVED
+  DENIED
+
+  @@map("login_request_status")
+}
+
+enum SessionType {
+  PHONE
+  BROWSER
+
+  @@map("session_type")
+}
+
+model User {
+  id           String        @id @default(uuid()) @db.Uuid
+  phone        String        @unique @db.VarChar(24)
+  passwordHash String        @map("password_hash")
+  createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  devices      Device[]
+  sessions     Session[]
+  requests     LoginRequest[] @relation("RequestApprover")
+  recoveryCodes RecoveryCode[]
+
+  @@map("users")
+}
+
+model Device {
+  id         String        @id @default(uuid()) @db.Uuid
+  userId     String        @map("user_id") @db.Uuid
+  name       String        @db.VarChar(80)
+  createdAt  DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  revokedAt  DateTime?     @map("revoked_at") @db.Timestamptz(6)
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessions   Session[]
+  approvals  LoginRequest[] @relation("DeviceApprover")
+
+  @@index([userId, revokedAt], map: "devices_user_active_idx")
+  @@map("devices")
+}
+
+model LoginRequest {
+  id               String             @id @default(uuid()) @db.Uuid
+  tokenHash        String             @unique @map("token_hash") @db.VarChar(64)
+  browserHash      String             @map("browser_hash") @db.VarChar(64)
+  browserName      String             @map("browser_name") @db.VarChar(120)
+  status           LoginRequestStatus @default(PENDING)
+  createdAt        DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  expiresAt        DateTime           @map("expires_at") @db.Timestamptz(6)
+  approvedAt       DateTime?          @map("approved_at") @db.Timestamptz(6)
+  approvedByUserId String?            @map("approved_by_user_id") @db.Uuid
+  approvedByDeviceId String?          @map("approved_by_device_id") @db.Uuid
+  approvedByUser   User?              @relation("RequestApprover", fields: [approvedByUserId], references: [id], onDelete: Restrict)
+  approvedByDevice Device?            @relation("DeviceApprover", fields: [approvedByDeviceId], references: [id], onDelete: Restrict)
+  session          Session?
+
+  @@index([status, expiresAt], map: "login_requests_status_expiry_idx")
+  @@map("login_requests")
+}
+
+model Session {
+  id             String       @id @default(uuid()) @db.Uuid
+  userId         String       @map("user_id") @db.Uuid
+  deviceId       String       @map("device_id") @db.Uuid
+  loginRequestId String?      @unique @map("login_request_id") @db.Uuid
+  type           SessionType
+  name           String       @db.VarChar(120)
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  expiresAt      DateTime     @map("expires_at") @db.Timestamptz(6)
+  revokedAt      DateTime?    @map("revoked_at") @db.Timestamptz(6)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  device         Device       @relation(fields: [deviceId], references: [id], onDelete: Restrict)
+  loginRequest   LoginRequest? @relation(fields: [loginRequestId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type, revokedAt], map: "sessions_user_type_revoked_idx")
+  @@index([expiresAt], map: "sessions_expiry_idx")
+  @@map("sessions")
+}
+
+model RecoveryCode {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  codeHash  String    @unique @map("code_hash") @db.VarChar(64)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  usedAt    DateTime? @map("used_at") @db.Timestamptz(6)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, usedAt])
+  @@map("recovery_codes")
+}

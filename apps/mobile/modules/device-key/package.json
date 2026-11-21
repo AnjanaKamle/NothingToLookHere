@@ -1,7 +1,0 @@
-{
-  "name": "device-key",
-  "version": "0.1.0",
-  "private": true,
-  "description": "Hardware-backed, non-exportable ES256 device key (Secure Enclave / Android Keystore) for the trusted-phone app.",
-  "main": "index.js"
-}

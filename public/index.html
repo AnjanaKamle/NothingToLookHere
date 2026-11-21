@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>sem3 Capstone | Phone sign-in</title>
+    <link rel="stylesheet" href="/style.css" />
+    <script type="module" src="/app.js"></script>
+  </head>
+  <body>
+    <main class="card">
+      <p class="eyebrow">sem3 capstone</p>
+      <h1 id="title">Sign in on this computer</h1>
+      <p id="intro" class="muted">Use your signed-in phone to approve a one-time QR request.</p>
+
+      <section id="browser-panel" class="panel hidden">
+        <button id="create-request" class="primary">Show sign-in QR</button>
+        <button id="phone-signin" class="secondary phone-signin">I'm using my phone</button>
+        <div id="qr-area" class="hidden">
+          <img id="qr" alt="One-time sign-in QR code" />
+          <p id="request-message" class="muted">Scan this code with your phone camera.</p>
+        </div>
+        <p id="browser-user" class="success hidden">This browser is signed in.</p>
+        <button id="browser-logout" class="secondary hidden">Sign out</button>
+      </section>
+
+      <section id="auth-panel" class="panel hidden">
+        <div class="tabs">
+          <button id="show-login" class="tab active">Sign in</button>
+          <button id="show-register" class="tab">Create account</button>
+          <button id="show-recovery" class="tab">Recover</button>
+        </div>
+        <form id="auth-form">
+          <label>Phone number<input id="phone" name="phone" autocomplete="tel" required /></label>
+          <label id="password-label">Password<input id="password" name="password" type="password" minlength="8" autocomplete="current-password" required /></label>
+          <label id="recovery-code-label" class="hidden">One-time recovery code<input id="recovery-code" autocomplete="off" /></label>
+          <label id="device-label" class="hidden">Phone name<input id="device-name" name="deviceName" value="My phone" maxlength="80" /></label>
+          <button id="auth-submit" class="primary" type="submit">Sign in</button>
+        </form>
+        <p id="auth-message" class="message" role="status"></p>
+      </section>
+
+      <section id="approval-panel" class="panel hidden">
+        <p>This sign-in request is for:</p>
+        <p id="browser-name" class="browser-name"></p>
+        <div class="actions">
+          <button id="approve" class="primary">Approve sign-in</button>
+          <button id="deny" class="secondary">Deny</button>
+        </div>
+        <p id="approval-message" class="message" role="status"></p>
+      </section>
+
+      <section id="phone-panel" class="panel hidden">
+        <p id="phone-user" class="success"></p>
+        <section id="recovery-codes-panel" class="recovery-codes hidden">
+          <h2>Save these recovery codes</h2>
+          <p>Each code works once. They are shown only now. Keep them somewhere private.</p>
+          <ul id="recovery-code-list"></ul>
+          <button id="hide-recovery-codes" class="secondary">I saved them</button>
+        </section>
+        <h2>Active browser sessions</h2>
+        <ul id="session-list" class="session-list"></ul>
+        <button id="phone-logout" class="secondary">Sign out of this phone</button>
+      </section>
+
+      <p id="global-message" class="message" role="status"></p>
+    </main>
+  </body>
+</html>
