@@ -68,17 +68,13 @@ function showAuth() {
 
 $("show-login").addEventListener("click", () => setAuthMode("login"));
 $("show-register").addEventListener("click", () => setAuthMode("register"));
-$("show-recovery").addEventListener("click", () => setAuthMode("recover"));
 function setAuthMode(mode) {
   currentMode = mode;
   $("show-login").classList.toggle("active", mode === "login");
   $("show-register").classList.toggle("active", mode === "register");
-  $("show-recovery").classList.toggle("active", mode === "recover");
-  $("device-label").classList.toggle("hidden", !["register", "recover"].includes(mode));
-  $("recovery-code-label").classList.toggle("hidden", mode !== "recover");
-  $("password-label").firstChild.textContent = mode === "recover" ? "New password" : "Password";
-  $("auth-submit").textContent = mode === "register" ? "Create account" : mode === "recover" ? "Recover account" : "Sign in";
-  $("password").autocomplete = mode === "register" || mode === "recover" ? "new-password" : "current-password";
+  $("device-label").classList.toggle("hidden", mode !== "register");
+  $("auth-submit").textContent = mode === "register" ? "Create account" : "Sign in";
+  $("password").autocomplete = mode === "register" ? "new-password" : "current-password";
 }
 $("phone-signin").addEventListener("click", () => {
   setAuthMode("login");
@@ -89,33 +85,17 @@ $("auth-form").addEventListener("submit", async (event) => {
   event.preventDefault();
   $("auth-message").textContent = "";
   try {
-    const endpoint = currentMode === "register" ? "register" : currentMode === "recover" ? "recover" : "login";
-    const data = await api(`/api/auth/${endpoint}`, {
+    const data = await api(`/api/auth/${currentMode}`, {
       method: "POST",
       body: JSON.stringify({
         phone: $("phone").value,
         password: $("password").value,
-        newPassword: $("password").value,
-        code: $("recovery-code").value,
         deviceName: $("device-name").value
       })
     });
     await showPhone(data.user);
-    if (data.recoveryCodes) showRecoveryCodes(data.recoveryCodes);
   } catch (error) { $("auth-message").textContent = error.message; }
 });
-
-function showRecoveryCodes(codes) {
-  const list = $("recovery-code-list");
-  list.replaceChildren();
-  for (const code of codes) {
-    const item = document.createElement("li");
-    item.textContent = code;
-    list.append(item);
-  }
-  $("recovery-codes-panel").classList.remove("hidden");
-}
-$("hide-recovery-codes").addEventListener("click", () => $("recovery-codes-panel").classList.add("hidden"));
 
 $("approve").addEventListener("click", () => decide("approve"));
 $("deny").addEventListener("click", () => decide("deny"));

@@ -21,8 +21,8 @@ CREATE TABLE devices (
 
 CREATE TABLE login_requests (
   id UUID PRIMARY KEY,
-  token_hash VARCHAR(64) NOT NULL UNIQUE,
-  browser_hash VARCHAR(64) NOT NULL,
+  token VARCHAR(64) NOT NULL UNIQUE,
+  browser_secret VARCHAR(64) NOT NULL,
   browser_name VARCHAR(120) NOT NULL,
   status login_request_status NOT NULL DEFAULT 'PENDING',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -50,16 +50,7 @@ CREATE TABLE sessions (
   CONSTRAINT browser_sessions_have_request CHECK (type <> 'BROWSER' OR login_request_id IS NOT NULL)
 );
 
-CREATE TABLE recovery_codes (
-  id UUID PRIMARY KEY,
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  code_hash VARCHAR(64) NOT NULL UNIQUE,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  used_at TIMESTAMPTZ
-);
-
 CREATE INDEX devices_user_active_idx ON devices(user_id, revoked_at);
 CREATE INDEX login_requests_status_expiry_idx ON login_requests(status, expires_at);
 CREATE INDEX sessions_user_type_revoked_idx ON sessions(user_id, type, revoked_at);
 CREATE INDEX sessions_expiry_idx ON sessions(expires_at);
-CREATE INDEX recovery_codes_user_used_idx ON recovery_codes(user_id, used_at);

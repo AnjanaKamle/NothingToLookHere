@@ -16,15 +16,15 @@ INSERT INTO devices (id, user_id, name)
 VALUES ($1, $2, $3)
 RETURNING id, name, created_at;
 
--- DEQ-04: start a one-time QR request; only the hashes are persisted
-INSERT INTO login_requests (id, token_hash, browser_hash, browser_name, expires_at)
+-- DEQ-04: start a one-time QR request
+INSERT INTO login_requests (id, token, browser_secret, browser_name, expires_at)
 VALUES ($1, $2, $3, $4, $5)
 RETURNING id, status, created_at, expires_at;
 
--- DEQ-05: read a request only while its token hash matches
+-- DEQ-05: find a request by the token scanned from the QR code
 SELECT id, browser_name, status, expires_at
 FROM login_requests
-WHERE token_hash = $1;
+WHERE token = $1;
 
 -- DEQ-06: atomically approve once and create the browser session
 BEGIN;
@@ -61,25 +61,8 @@ UPDATE login_requests
 SET status = 'DENIED'
 WHERE status = 'PENDING' AND expires_at <= NOW();
 
--- DEQ-11: save one-time recovery-code hashes at registration
-INSERT INTO recovery_codes (id, user_id, code_hash)
-VALUES ($1, $2, $3);
-
--- DEQ-12: atomically consume one code, change the password, and revoke old access
-BEGIN;
-UPDATE recovery_codes
-SET used_at = NOW()
-WHERE user_id = $1 AND code_hash = $2 AND used_at IS NULL
-RETURNING id;
--- Continue only if one row was returned; otherwise ROLLBACK.
-UPDATE users SET password_hash = $3 WHERE id = $1;
-UPDATE sessions SET revoked_at = NOW() WHERE user_id = $1 AND revoked_at IS NULL;
-UPDATE devices SET revoked_at = NOW() WHERE user_id = $1 AND revoked_at IS NULL;
-COMMIT;
-
--- DEQ-13: common lookup plans use these indexes (created in 03_schema.sql)
+-- DEQ-11: common lookup plans use these indexes (created in 03_schema.sql)
 -- devices_user_active_idx(user_id, revoked_at)
 -- login_requests_status_expiry_idx(status, expires_at)
 -- sessions_user_type_revoked_idx(user_id, type, revoked_at)
 -- sessions_expiry_idx(expires_at)
--- recovery_codes_user_used_idx(user_id, used_at)

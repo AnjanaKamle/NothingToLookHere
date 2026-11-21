@@ -1,16 +1,23 @@
-import { randomUUID } from "node:crypto";
 import jwt from "jsonwebtoken";
 import { prisma } from "../db.js";
 
 const SESSION_DAYS = 7;
+const SESSION_MS = SESSION_DAYS * 24 * 60 * 60 * 1000;
 
-export async function createSession({ userId, type, name, deviceId = null, loginRequestId = null }, client = prisma) {
-  const expiresAt = new Date(Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000);
-  const session = await client.session.create({
-    data: { id: randomUUID(), userId, type, name, deviceId, loginRequestId, expiresAt }
+export function sessionExpiry() {
+  return new Date(Date.now() + SESSION_MS);
+}
+
+// The JWT only names a session row; authenticate() checks that row is still active.
+export function makeToken(session) {
+  return jwt.sign({ sub: session.userId, sid: session.id, type: session.type }, process.env.JWT_SECRET, { expiresIn: `${SESSION_DAYS}d` });
+}
+
+export async function createPhoneSession(userId, device) {
+  const session = await prisma.session.create({
+    data: { userId, deviceId: device.id, type: "PHONE", name: device.name, expiresAt: sessionExpiry() }
   });
-  const token = jwt.sign({ sub: userId, sid: session.id, type }, process.env.JWT_SECRET, { expiresIn: `${SESSION_DAYS}d` });
-  return { session, token };
+  return makeToken(session);
 }
 
 export function setSessionCookie(res, token) {
@@ -18,11 +25,7 @@ export function setSessionCookie(res, token) {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
-    maxAge: SESSION_DAYS * 24 * 60 * 60 * 1000,
+    maxAge: SESSION_MS,
     path: "/"
   });
-}
-
-export function createTokenForExistingSession(session) {
-  return jwt.sign({ sub: session.userId, sid: session.id, type: session.type }, process.env.JWT_SECRET, { expiresIn: "7d" });
 }

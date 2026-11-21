@@ -27,9 +27,6 @@ input { width: 100%; border: 1px solid #d0d5dd; border-radius: 8px; padding: 11p
 .browser-name { padding: 14px; background: #f2f4f7; border-radius: 8px; overflow-wrap: anywhere; }
 .actions { display: grid; gap: 10px; }
 .session-list { list-style: none; padding: 0; display: grid; gap: 10px; }
-.recovery-codes { margin: 22px 0; padding: 16px; background: #fff8e7; border: 1px solid #f2d58b; border-radius: 10px; }
-.recovery-codes h2 { margin-top: 0; }
-.recovery-codes ul { columns: 2; font-family: ui-monospace, monospace; overflow-wrap: anywhere; }
 .session-list li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px; background: #f8f9fc; border-radius: 8px; }
 .small-button { flex: none; color: #b42318; background: #fee4e2; padding: 8px 10px; }
 @media (max-width: 420px) { .card { padding: 24px 20px; } }

@@ -14,8 +14,8 @@ erDiagram
     }
     LOGIN_REQUESTS {
         UUID id PK
-        VARCHAR token_hash UK
-        VARCHAR browser_hash
+        VARCHAR token UK
+        VARCHAR browser_secret
         VARCHAR browser_name
         login_request_status status
         TIMESTAMPTZ created_at
@@ -35,17 +35,9 @@ erDiagram
         TIMESTAMPTZ expires_at
         TIMESTAMPTZ revoked_at
     }
-    RECOVERY_CODES {
-        UUID id PK
-        UUID user_id FK
-        VARCHAR code_hash UK
-        TIMESTAMPTZ created_at
-        TIMESTAMPTZ used_at
-    }
     USERS ||--o{ DEVICES : registers
     USERS ||--o{ SESSIONS : owns
     USERS o|--o{ LOGIN_REQUESTS : approves
     DEVICES o|--o{ LOGIN_REQUESTS : approves
     DEVICES o|--o{ SESSIONS : identifies
     LOGIN_REQUESTS ||--o| SESSIONS : creates
-    USERS ||--o{ RECOVERY_CODES : owns

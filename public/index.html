@@ -28,12 +28,10 @@
         <div class="tabs">
           <button id="show-login" class="tab active">Sign in</button>
           <button id="show-register" class="tab">Create account</button>
-          <button id="show-recovery" class="tab">Recover</button>
         </div>
         <form id="auth-form">
           <label>Phone number<input id="phone" name="phone" autocomplete="tel" required /></label>
           <label id="password-label">Password<input id="password" name="password" type="password" minlength="8" autocomplete="current-password" required /></label>
-          <label id="recovery-code-label" class="hidden">One-time recovery code<input id="recovery-code" autocomplete="off" /></label>
           <label id="device-label" class="hidden">Phone name<input id="device-name" name="deviceName" value="My phone" maxlength="80" /></label>
           <button id="auth-submit" class="primary" type="submit">Sign in</button>
         </form>
@@ -52,12 +50,6 @@
 
       <section id="phone-panel" class="panel hidden">
         <p id="phone-user" class="success"></p>
-        <section id="recovery-codes-panel" class="recovery-codes hidden">
-          <h2>Save these recovery codes</h2>
-          <p>Each code works once. They are shown only now. Keep them somewhere private.</p>
-          <ul id="recovery-code-list"></ul>
-          <button id="hide-recovery-codes" class="secondary">I saved them</button>
-        </section>
         <h2>Active browser sessions</h2>
         <ul id="session-list" class="session-list"></ul>
         <button id="phone-logout" class="secondary">Sign out of this phone</button>
