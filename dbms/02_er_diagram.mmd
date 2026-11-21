@@ -1,113 +1,51 @@
----
-title: sem3 Capstone - QR handoff authentication (ER diagram)
----
-%% Editable source for dbms/02_er_diagram.png. Re-render with: npm run db:ap:diagram
-%% Solid lines are foreign keys. The dotted line is a logical reference with no foreign key.
 erDiagram
-    users ||--o{ devices : "enrolls"
-    users ||--o{ enrollment_challenges : "requests"
-    users ||--o{ recovery_code_batches : "is issued"
-    recovery_code_batches ||--|{ recovery_codes : "contains"
-    devices ||--o{ device_keys : "holds (at most 1 active)"
-    device_keys |o--o{ login_challenges : "signs decision for"
-    devices ||--o{ browser_sessions : "approves"
-    login_challenges |o--o| browser_sessions : "is consumed into"
-    users ||..o{ audit_events : "is subject of (no FK)"
-
-    users {
-        uuid id PK
-        text email UK "lower-case, trimmed"
-        text display_name "nullable"
-        text password_hash "PHC KDF string"
-        timestamptz created_at
-        timestamptz updated_at
-        timestamptz disabled_at "nullable"
+    USERS {
+        UUID id PK
+        VARCHAR phone UK
+        TEXT password_hash
+        TIMESTAMPTZ created_at
     }
-
-    devices {
-        uuid id PK
-        uuid user_id FK
-        text name
-        text platform "ios | android"
-        bytea api_token_hash UK "SHA-256"
-        timestamptz created_at
-        timestamptz last_used_at "nullable"
-        timestamptz revoked_at "nullable, write-once"
-        text revoked_reason "set iff revoked"
+    DEVICES {
+        UUID id PK
+        UUID user_id FK
+        VARCHAR name
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ revoked_at
     }
-
-    device_keys {
-        uuid id PK
-        uuid device_id FK "unique where active"
-        text algorithm "ES256"
-        bytea public_key_spki UK "91-byte DER"
-        text key_storage "secure_enclave | strongbox | tee | ..."
-        timestamptz created_at
-        timestamptz last_used_at "nullable"
-        timestamptz revoked_at "nullable, write-once"
+    LOGIN_REQUESTS {
+        UUID id PK
+        VARCHAR token_hash UK
+        VARCHAR browser_hash
+        VARCHAR browser_name
+        login_request_status status
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ expires_at
+        TIMESTAMPTZ approved_at
+        UUID approved_by_user_id FK
+        UUID approved_by_device_id FK
     }
-
-    enrollment_challenges {
-        uuid id PK
-        uuid user_id FK
-        bytea nonce_hash "SHA-256"
-        timestamptz created_at
-        timestamptz expires_at "max 10 min"
-        timestamptz consumed_at "nullable, write-once"
+    SESSIONS {
+        UUID id PK
+        UUID user_id FK
+        UUID device_id FK
+        UUID login_request_id FK_UK
+        session_type type
+        VARCHAR name
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ expires_at
+        TIMESTAMPTZ revoked_at
     }
-
-    login_challenges {
-        uuid id PK
-        bytea nonce_hash "SHA-256 of QR nonce"
-        bytea browser_binding_hash "SHA-256 of cookie secret"
-        text status "pending | approved | denied | consumed"
-        timestamptz created_at
-        timestamptz expires_at "max 5 min"
-        inet requester_ip "nullable"
-        text requester_user_agent "nullable"
-        timestamptz decided_at "nullable"
-        uuid decided_by_key_id FK "nullable"
-        bytea decision_signature "nullable"
-        timestamptz consumed_at "nullable"
+    RECOVERY_CODES {
+        UUID id PK
+        UUID user_id FK
+        VARCHAR code_hash UK
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ used_at
     }
-
-    browser_sessions {
-        uuid id PK
-        uuid login_challenge_id FK,UK "nullable after purge"
-        uuid approved_by_device_id FK
-        bytea token_hash UK "SHA-256"
-        timestamptz created_at
-        timestamptz last_seen_at
-        timestamptz expires_at "max 30 days"
-        inet ip "nullable"
-        text user_agent "nullable"
-        timestamptz revoked_at "nullable, write-once"
-        text revoked_reason "set iff revoked"
-    }
-
-    recovery_code_batches {
-        uuid id PK
-        uuid user_id FK "unique where active"
-        timestamptz created_at
-        timestamptz revoked_at "nullable, write-once"
-    }
-
-    recovery_codes {
-        uuid id PK
-        uuid batch_id FK
-        text code_hash "PHC KDF string"
-        timestamptz used_at "nullable, write-once"
-    }
-
-    audit_events {
-        bigint id PK "identity"
-        timestamptz occurred_at
-        text event_type "closed list"
-        uuid user_id "nullable, no FK"
-        uuid device_id "nullable, no FK"
-        uuid session_id "nullable, no FK"
-        uuid challenge_id "nullable, no FK"
-        inet ip "nullable"
-        text user_agent "nullable"
-        jsonb details "object"
-    }
+    USERS ||--o{ DEVICES : registers
+    USERS ||--o{ SESSIONS : owns
+    USERS o|--o{ LOGIN_REQUESTS : approves
+    DEVICES o|--o{ LOGIN_REQUESTS : approves
+    DEVICES o|--o{ SESSIONS : identifies
+    LOGIN_REQUESTS ||--o| SESSIONS : creates
+    USERS ||--o{ RECOVERY_CODES : owns
